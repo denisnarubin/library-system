@@ -11,7 +11,7 @@ const BookForm = () => {
   const [authors, setAuthors] = useState([]);
   const [newAuthorName, setNewAuthorName] = useState('');
   const [showNewAuthorInput, setShowNewAuthorInput] = useState(false);
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     title: '',
     publisher: '',
     year_published: '',
@@ -20,6 +20,8 @@ const BookForm = () => {
   });
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   useEffect(() => {
     fetchAuthors();
@@ -47,9 +49,14 @@ const BookForm = () => {
     }
   };
 
-  const handleChange = (e) => {
+const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setTouched(prev => ({ ...prev, [name]: true }));
+    
+    // Валидация в реальном времени при вводе
+    const error = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: error }));
   };
 
   const handleAuthorToggle = (authorId) => {
@@ -79,8 +86,52 @@ const BookForm = () => {
     }
   };
 
+const validateField = (name, value) => {
+    switch (name) {
+      case 'title':
+        if (!value.trim()) return 'Название обязательно';
+        if (value.trim().length < 2) return 'Название слишком короткое';
+        if (/\d/.test(value.trim())) return 'Название не должно содержать цифры';
+        return '';
+      case 'publisher':
+        if (value.trim().length > 0 && value.trim().length < 2) return 'Название издательства слишком короткое';
+        if (/\d/.test(value.trim())) return 'Название издательства не должно содержать цифры';
+        return '';
+      case 'year_published':
+        if (value && (value < 1800 || value > new Date().getFullYear())) return 'Недопустимый год издания';
+        return '';
+      case 'year_arrived':
+        if (value && (value < 1800 || value > new Date().getFullYear())) return 'Недопустимый год поступления';
+        return '';
+      case 'isbn':
+        if (value.trim().length > 0 && !/^\d{10}(\d{3})?$/.test(value.trim())) return 'Недопустимый ISBN (10 или 13 цифр)';
+        return '';
+      default:
+        return '';
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    const allTouched = {};
+    
+    Object.keys(formData).forEach(field => {
+      allTouched[field] = true;
+      const error = validateField(field, formData[field]);
+      if (error) newErrors[field] = error;
+    });
+    
+    setTouched(allTouched);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const isFormValid = validateForm();
+    if (!isFormValid) {
+      return;
+    }
     try {
       setLoading(true);
       if (isEdit) {
@@ -111,7 +162,7 @@ const BookForm = () => {
           <h2 className="form-title">Информация о книге</h2>
           <div className="form-grid">
             <div className="form-group full-width">
-              <label>Название *</label>
+<label>Название *</label>
               <input
                 type="text"
                 name="title"
@@ -119,18 +170,24 @@ const BookForm = () => {
                 onChange={handleChange}
                 required
               />
+              {errors.title && touched.title && (
+                <span className="error">{errors.title}</span>
+              )}
             </div>
             <div className="form-group">
-              <label>Издательство</label>
+<label>Издательство</label>
               <input
                 type="text"
                 name="publisher"
                 value={formData.publisher}
                 onChange={handleChange}
               />
+              {errors.publisher && touched.publisher && (
+                <span className="error">{errors.publisher}</span>
+              )}
             </div>
             <div className="form-group">
-              <label>Год издания</label>
+<label>Год издания</label>
               <input
                 type="number"
                 name="year_published"
@@ -139,9 +196,12 @@ const BookForm = () => {
                 min="1800"
                 max={new Date().getFullYear()}
               />
+              {errors.year_published && touched.year_published && (
+                <span className="error">{errors.year_published}</span>
+              )}
             </div>
             <div className="form-group">
-              <label>Год поступления</label>
+<label>Год поступления</label>
               <input
                 type="number"
                 name="year_arrived"
@@ -150,15 +210,21 @@ const BookForm = () => {
                 min="1800"
                 max={new Date().getFullYear()}
               />
+              {errors.year_arrived && touched.year_arrived && (
+                <span className="error">{errors.year_arrived}</span>
+              )}
             </div>
             <div className="form-group">
-              <label>ISBN</label>
+<label>ISBN</label>
               <input
                 type="text"
                 name="isbn"
                 value={formData.isbn}
                 onChange={handleChange}
               />
+              {errors.isbn && touched.isbn && (
+                <span className="error">{errors.isbn}</span>
+              )}
             </div>
             
             {/* Authors Section */}
@@ -196,13 +262,13 @@ const BookForm = () => {
                   ))
                 )}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '12px' }}>
+<div style={{ display: 'flex', justifyContent: 'flex-start', gap: '8px', marginTop: '12px' }}>
                 {!showNewAuthorInput && (
                   <button 
                     type="button" 
                     className="btn btn-primary btn-lg"
                     onClick={() => setShowNewAuthorInput(true)}
-                    style={{ width: 'auto', display: 'inline-block' }}
+                    style={{ width: 'auto', display: 'inline-block', padding: '12px 24px', fontSize: '1.1rem' }}
                   >
                     + Новый автор
                   </button>

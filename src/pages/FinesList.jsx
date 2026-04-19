@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { finesAPI, readersAPI } from '../services/api';
 import './Common.css';
 
 const FinesList = () => {
+  const navigate = useNavigate();
   const [fines, setFines] = useState([]);
   const [readers, setReaders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +50,12 @@ const FinesList = () => {
 
   return (
     <div className="list-page">
-      <div className="page-header"><h1>Штрафы</h1></div>
+      <div className="page-header">
+        <h1>Штрафы</h1>
+        <button className="btn btn-primary" onClick={() => navigate('/fines/new')}>
+          Добавить штраф
+        </button>
+      </div>
       <div className="filters">
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="filter-select">
           <option value="">Все штрафы</option>
@@ -66,9 +73,9 @@ const FinesList = () => {
               filteredFines.map(fine => (
                 <tr key={fine.id}>
                   <td>{fine.id}</td><td>{getReaderName(fine.reader_id)}</td><td>{fine.amount} ₽</td>
-                  <td>{fine.reason === 'overdue' ? 'Просрочка' : fine.reason === 'lost_book' ? 'Утеря книги' : fine.reason}</td>
+                  <td>{fine.reason === 'overdue' ? 'Просрочка' : fine.reason === 'lost_book' ? 'Утерян' : fine.reason}</td>
                   <td><span className={`status-badge ${fine.paid ? 'available' : 'loaned'}`}>{fine.paid ? 'Оплачен' : 'Не оплачен'}</span></td>
-                  <td>{!fine.paid && <button className="btn btn-sm btn-success" onClick={() => handlePay(fine.id)}>Оплатить</button>}</td>
+                  <td>{!fine.paid && <button className="btn btn-sm btn-success" onClick={() => handlePay(fine.id)}>Оплата</button>}</td>
                 </tr>
               ))
             )}

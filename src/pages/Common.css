@@ -43,6 +43,7 @@
 .btn:hover {
   background-color: #2980b9;
   transform: translateY(-1px);
+  color: white;
 }
 
 .btn-primary {
@@ -230,6 +231,20 @@
 .form-group textarea {
   min-height: 100px;
   resize: vertical;
+}
+
+.error {
+  color: #e74c3c;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+  border-color: #e74c3c;
+  background-color: #fdf2f2;
 }
 
 .form-actions {

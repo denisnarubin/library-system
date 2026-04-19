@@ -136,7 +136,23 @@ app.put('/api/readers/:id', async (req, res) => {
 
 app.delete('/api/readers/:id', async (req, res) => {
   try {
-    await query('DELETE FROM readers WHERE id = $1', [req.params.id]);
+    const readerId = req.params.id;
+    
+    // Удаляем все связанные записи вручную в правильном порядке
+    await query('DELETE FROM fines WHERE reader_id = $1', [readerId]);
+    await query('DELETE FROM loan_bans WHERE reader_id = $1', [readerId]);
+    await query('DELETE FROM book_requests WHERE reader_id = $1', [readerId]);
+    await query('DELETE FROM interlibrary_orders WHERE reader_id = $1', [readerId]);
+    await query('DELETE FROM lost_books WHERE reader_id = $1', [readerId]);
+    await query('DELETE FROM book_loans WHERE reader_id = $1', [readerId]);
+    await query('DELETE FROM library_cards WHERE reader_id = $1', [readerId]);
+    await query('DELETE FROM students_details WHERE reader_id = $1', [readerId]);
+    await query('DELETE FROM teachers_details WHERE reader_id = $1', [readerId]);
+    await query('DELETE FROM one_time_readers_details WHERE reader_id = $1', [readerId]);
+    
+    // Теперь можно удалить самого читателя
+    await query('DELETE FROM readers WHERE id = $1', [readerId]);
+    
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -530,12 +546,34 @@ app.post('/api/book-loans', async (req, res) => {
 app.post('/api/book-loans/:id/return', async (req, res) => {
   try {
     const { return_date } = req.body;
+    const actualReturnDate = return_date || new Date().toISOString().split('T')[0];
+    
+    // Получаем данные о выдаче
+    const loanResult = await query('SELECT * FROM book_loans WHERE id = $1', [req.params.id]);
+    const loan = loanResult.rows[0];
+    
+    // Обновляем дату возврата
     const result = await query(
       'UPDATE book_loans SET return_date = $1 WHERE id = $2 RETURNING *',
-      [return_date || new Date().toISOString().split('T')[0], req.params.id]
+      [actualReturnDate, req.params.id]
     );
-    // Update book copy status
-    await query("UPDATE book_copies SET status = 'available' WHERE id = (SELECT copy_id FROM book_loans WHERE id = $1)", [req.params.id]);
+    
+    // Обновляем статус экземпляра книги
+    await query("UPDATE book_copies SET status = 'available' WHERE id = $1", [loan.copy_id]);
+    
+    // Проверяем просрочку и создаем штраф при необходимости
+    if (actualReturnDate > loan.due_date) {
+      const overdue_days = Math.ceil((new Date(actualReturnDate) - new Date(loan.due_date)) / (1000 * 60 * 60 * 24));
+      const fine_amount = overdue_days * 5.0; // 5 руб/день
+      
+      if (overdue_days > 0) {
+        await query(
+          'INSERT INTO fines (loan_id, reader_id, amount, reason, paid) VALUES ($1, $2, $3, $4, false)',
+          [loan.id, loan.reader_id, fine_amount, 'overdue']
+        );
+      }
+    }
+    
     res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -592,6 +630,19 @@ app.post('/api/fines/:id/pay', async (req, res) => {
   }
 });
 
+app.post('/api/fines', async (req, res) => {
+  try {
+    const { loan_id, reader_id, amount, reason } = req.body;
+    const result = await query(
+      'INSERT INTO fines (loan_id, reader_id, amount, reason, paid) VALUES ($1, $2, $3, $4, false) RETURNING *',
+      [loan_id || null, reader_id, amount, reason]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Lost Books
 app.get('/api/lost-books', async (req, res) => {
   try {
@@ -611,6 +662,85 @@ app.post('/api/lost-books/:id/compensate', async (req, res) => {
   }
 });
 
+// Отметить что утерянная книга найдена
+app.post('/api/lost-books/:id/found', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      
+      // Получаем данные утерянной книги
+      const lostBook = await client.query('SELECT * FROM lost_books WHERE id = $1', [req.params.id]);
+      
+      if (lostBook.rows.length === 0) {
+        return res.status(404).json({ error: 'Запись не найдена' });
+      }
+      
+      const { copy_id } = lostBook.rows[0];
+      
+      // Возвращаем копию книги в статус доступна
+      await client.query("UPDATE book_copies SET status = 'available' WHERE id = $1", [copy_id]);
+      
+      // Удаляем запись из утерянных книг
+      await client.query('DELETE FROM lost_books WHERE id = $1', [req.params.id]);
+      
+      await client.query('COMMIT');
+      res.json({ success: true, message: 'Книга отмечена как найдена' });
+    } catch (txErr) {
+      await client.query('ROLLBACK');
+      throw txErr;
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/lost-books', async (req, res) => {
+  try {
+    // Игнорируем лишнее поле loan_id которое приходит из формы
+    const { copy_id, reader_id, loss_date, compensation_amount, loan_id } = req.body;
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+
+      const result = await client.query(
+        'INSERT INTO lost_books (copy_id, reader_id, loss_date, compensation_amount, compensated) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+        [copy_id, reader_id, loss_date || new Date().toISOString().split('T')[0], compensation_amount || 5000, false]
+      );
+
+      // Обновляем статус экземпляра книги на lost
+      await client.query("UPDATE book_copies SET status = 'lost' WHERE id = $1", [copy_id]);
+
+      // Автоматически закрываем активную выдачу этой книги если она была на руках
+      await client.query(
+        "UPDATE book_loans SET return_date = $1 WHERE copy_id = $2 AND return_date IS NULL",
+        [loss_date || new Date().toISOString().split('T')[0], copy_id]
+      );
+
+      // Создаем штраф за утерю книги
+      await client.query(
+        'INSERT INTO fines (loan_id, reader_id, amount, reason, paid) VALUES ($1, $2, $3, $4, false)',
+        [loan_id || null, reader_id, compensation_amount || 5000, 'lost_book']
+      );
+
+      await client.query('COMMIT');
+      res.json(result.rows[0]);
+    } catch (txErr) {
+      await client.query('ROLLBACK');
+      throw txErr;
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error('Lost book error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Loan Bans
 app.get('/api/loan-bans', async (req, res) => {
   try {
@@ -621,11 +751,55 @@ app.get('/api/loan-bans', async (req, res) => {
   }
 });
 
+app.post('/api/loan-bans', async (req, res) => {
+  try {
+    const { reader_id, start_date, end_date, reason } = req.body;
+    const result = await query(
+      'INSERT INTO loan_bans (reader_id, start_date, end_date, reason) VALUES ($1, $2, $3, $4) RETURNING *',
+      [reader_id, start_date, end_date, reason]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Досрочное снятие блокировки
+app.post('/api/loan-bans/:id/revoke', async (req, res) => {
+  try {
+    const result = await query(
+      'UPDATE loan_bans SET end_date = CURRENT_DATE WHERE id = $1 RETURNING *',
+      [req.params.id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Блокировка не найдена' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Interlibrary Orders
 app.get('/api/interlibrary-orders', async (req, res) => {
   try {
     const result = await query('SELECT * FROM interlibrary_orders ORDER BY id DESC');
     res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/interlibrary-orders', async (req, res) => {
+  try {
+    const { reader_id, book_title, author_name, order_date } = req.body;
+    const result = await query(
+      'INSERT INTO interlibrary_orders (reader_id, book_title, author_name, order_date) VALUES ($1, $2, $3, $4) RETURNING *',
+      [reader_id, book_title, author_name, order_date || new Date().toISOString().split('T')[0]]
+    );
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -717,6 +891,16 @@ app.get('/api/statistics/reader-current-books', async (req, res) => {
   try {
     const result = await query("SELECT * FROM reader_current_books($1)", [req.query.readerLastname]);
     res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all unique faculties
+app.get('/api/faculties', async (req, res) => {
+  try {
+    const result = await query("SELECT DISTINCT faculty FROM students_details WHERE faculty IS NOT NULL ORDER BY faculty");
+    res.json(result.rows.map(row => row.faculty));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

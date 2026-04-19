@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { interlibraryOrdersAPI, readersAPI } from '../services/api';
 import './Common.css';
 
 const InterlibraryOrdersList = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [readers, setReaders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,12 @@ const InterlibraryOrdersList = () => {
 
   return (
     <div className="list-page">
-      <div className="page-header"><h1>МБА заказы</h1></div>
+      <div className="page-header">
+        <h1>МБА заказы</h1>
+        <button className="btn btn-primary" onClick={() => navigate('/interlibrary-orders/new')}>
+          Создать заказ
+        </button>
+      </div>
       <div className="table-container">
         <table className="data-table">
           <thead><tr><th>ID</th><th>Читатель</th><th>Книга</th><th>Автор</th><th>Дата заказа</th><th>Получено</th><th>Возврат</th></tr></thead>

@@ -3,7 +3,6 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import './Layout.css';
 
 const Layout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -18,7 +17,7 @@ const Layout = () => {
     { path: '/authors', label: 'Авторы', icon: 'authors' },
     { path: '/fines', label: 'Штрафы', icon: 'fines' },
     { path: '/lost-books', label: 'Утерянные книги', icon: 'lost' },
-    { path: '/loan-bans', label: 'Лишение права', icon: 'bans' },
+    { path: '/loan-bans', label: 'Блокировки', icon: 'bans' },
     { path: '/interlibrary-orders', label: 'МБА заказы', icon: 'orders' },
     { path: '/statistics', label: 'Статистика', icon: 'statistics' },
   ];
@@ -116,7 +115,7 @@ const Layout = () => {
     return icons[iconName] || null;
   };
 
-  const closeMobileMenu = () => {
+const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
 
@@ -126,18 +125,15 @@ const Layout = () => {
     }
   };
 
-  const handleMobileToggle = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
 
   return (
-    <div className={`layout ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+    <div className="layout sidebar-open">
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div className="mobile-overlay" onClick={closeMobileMenu} />
       )}
       
-      <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'} ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+      <aside className={`sidebar open ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-header">
           <h1 className="logo" onClick={handleLogoClick} style={{ cursor: window.innerWidth <= 768 ? 'pointer' : 'default' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -171,27 +167,6 @@ const Layout = () => {
 
       <div className="main-content">
         <header className="top-header">
-          <button 
-            className="sidebar-toggle" 
-            onClick={() => {
-              if (window.innerWidth <= 768) {
-                handleMobileToggle();
-              } else {
-                setSidebarOpen(!sidebarOpen);
-              }
-            }}
-            aria-label={sidebarOpen ? 'Закрыть меню' : 'Открыть меню'}
-          >
-            {sidebarOpen ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"/>
-              </svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            )}
-          </button>
           <div className="header-title">
             <h2>
               {menuItems.find(item => item.path === location.pathname)?.label || 'Библиотека'}

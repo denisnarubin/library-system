@@ -15,9 +15,13 @@ import CategoryForm from './pages/CategoryForm';
 import AuthorsList from './pages/AuthorsList';
 import AuthorForm from './pages/AuthorForm';
 import FinesList from './pages/FinesList';
+import FineForm from './pages/FineForm';
 import LostBooksList from './pages/LostBooksList';
+import LostBookForm from './pages/LostBookForm';
 import LoanBansList from './pages/LoanBansList';
+import LoanBanForm from './pages/LoanBanForm';
 import InterlibraryOrdersList from './pages/InterlibraryOrdersList';
+import InterlibraryOrderForm from './pages/InterlibraryOrderForm';
 import Statistics from './pages/Statistics';
 import './App.css';
 
@@ -64,15 +68,19 @@ function App() {
           
           {/* Fines */}
           <Route path="fines" element={<FinesList />} />
+          <Route path="fines/new" element={<FineForm />} />
           
           {/* Lost Books */}
           <Route path="lost-books" element={<LostBooksList />} />
+          <Route path="lost-books/new" element={<LostBookForm />} />
           
           {/* Loan Bans */}
           <Route path="loan-bans" element={<LoanBansList />} />
+          <Route path="loan-bans/new" element={<LoanBanForm />} />
           
           {/* Interlibrary Orders */}
           <Route path="interlibrary-orders" element={<InterlibraryOrdersList />} />
+          <Route path="interlibrary-orders/new" element={<InterlibraryOrderForm />} />
           
           {/* Statistics */}
           <Route path="statistics" element={<Statistics />} />

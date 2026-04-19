@@ -276,6 +276,24 @@
   }
 }
 
+/* Desktop and tablet - always show icons and labels */
+.sidebar:not(.mobile-open) .logo-text,
+.sidebar:not(.mobile-open) .subtitle,
+.sidebar:not(.mobile-open) .nav-label {
+  display: inline;
+}
+
+.sidebar:not(.mobile-open) .logo {
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.sidebar:not(.mobile-open) .nav-link {
+  justify-content: flex-start;
+  padding: 12px 20px;
+}
+
+/* Mobile - show only icons by default, full menu when open */
 @media (max-width: 768px) {
   /* On mobile, sidebar is fixed, showing only icons by default */
   .sidebar {

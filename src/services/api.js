@@ -127,6 +127,7 @@ export const lostBooksAPI = {
   create: (data) => api.post('/lost-books', data),
   update: (id, data) => api.put(`/lost-books/${id}`, data),
   markCompensated: (id) => api.post(`/lost-books/${id}/compensate`),
+  markFound: (id) => api.post(`/lost-books/${id}/found`),
 };
 
 // Loan Bans API
@@ -136,6 +137,7 @@ export const loanBansAPI = {
   create: (data) => api.post('/loan-bans', data),
   update: (id, data) => api.put(`/loan-bans/${id}`, data),
   delete: (id) => api.delete(`/loan-bans/${id}`),
+  revoke: (id) => api.post(`/loan-bans/${id}/revoke`),
 };
 
 // Interlibrary Orders API

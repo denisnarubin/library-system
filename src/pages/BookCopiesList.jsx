@@ -97,7 +97,7 @@ const BookCopiesList = () => {
                     <span className={`status-badge ${copy.status}`}>
                       {copy.status === 'available' && 'Доступен'}
                       {copy.status === 'loaned' && 'Выдан'}
-                      {copy.status === 'lost' && 'Утеряn'}
+                      {copy.status === 'lost' && 'Утерян'}
                     </span>
                   </td>
                 </tr>
