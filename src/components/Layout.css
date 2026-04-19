@@ -6,7 +6,8 @@
 
 .layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
   background-color: #f5f7fa;
 }
 
@@ -14,10 +15,12 @@
 .sidebar {
   background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
   color: #ecf0f1;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, transform 0.3s ease;
   display: flex;
   flex-direction: column;
   z-index: 100;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .sidebar.open {
@@ -35,21 +38,45 @@
 }
 
 .logo {
-  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #3498db;
   margin-bottom: 5px;
+  white-space: nowrap;
+}
+
+.logo svg {
+  flex-shrink: 0;
+}
+
+.logo-text {
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar.closed .logo-text,
+.sidebar.closed .subtitle {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
 }
 
 .subtitle {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #95a5a6;
+  display: block;
+  transition: opacity 0.2s ease;
 }
 
 .sidebar-nav {
   flex: 1;
   padding: 20px 0;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-nav ul {
@@ -57,7 +84,7 @@
 }
 
 .sidebar-nav li {
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .nav-link {
@@ -68,6 +95,8 @@
   text-decoration: none;
   transition: all 0.2s ease;
   position: relative;
+  gap: 12px;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -78,19 +107,32 @@
 .nav-link.active {
   background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
   color: #ffffff;
-  border-left: 4px solid #ecf0f1;
+  border-left: 3px solid #ecf0f1;
 }
 
 .nav-icon {
-  font-size: 1.3rem;
-  min-width: 30px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  flex-shrink: 0;
+}
+
+.nav-icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 .nav-label {
-  margin-left: 10px;
-  font-size: 0.95rem;
-  white-space: nowrap;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar.closed .nav-label {
+  opacity: 0;
+  width: 0;
 }
 
 /* Main Content */
@@ -99,64 +141,86 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .top-header {
   background-color: #ffffff;
-  padding: 15px 25px;
+  padding: 12px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   z-index: 50;
 }
 
 .sidebar-toggle {
   background: none;
   border: none;
-  font-size: 1.2rem;
   cursor: pointer;
   color: #2c3e50;
   padding: 8px;
   border-radius: 5px;
   transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .sidebar-toggle:hover {
   background-color: #f0f0f0;
 }
 
+.sidebar-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.header-title {
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+}
+
 .header-title h2 {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: #2c3e50;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-user {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .user-name {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #7f8c8d;
-  padding: 8px 16px;
+  padding: 6px 14px;
   background-color: #f8f9fa;
-  border-radius: 20px;
+  border-radius: 16px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .content {
   flex: 1;
-  padding: 25px;
+  padding: 24px;
   overflow-y: auto;
+  width: 100%;
 }
 
 /* Scrollbar styling */
 .sidebar-nav::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .sidebar-nav::-webkit-scrollbar-track {
@@ -165,7 +229,7 @@
 
 .sidebar-nav::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
@@ -189,25 +253,119 @@
   background: #a8a8a8;
 }
 
+/* Mobile Overlay */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .sidebar.open {
-    width: 220px;
-  }
-  
-  .sidebar.closed {
-    width: 60px;
+    width: 240px;
   }
   
   .nav-label {
     font-size: 0.85rem;
   }
+}
+
+@media (max-width: 768px) {
+  /* On mobile, sidebar is fixed, showing only icons by default */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 70px;
+    z-index: 101;
+    transform: none;
+  }
+
+  /* When menu is closed (default on mobile) - show only icons */
+  .sidebar:not(.mobile-open) .logo-text,
+  .sidebar:not(.mobile-open) .subtitle,
+  .sidebar:not(.mobile-open) .nav-label {
+    display: none;
+  }
+
+  .sidebar:not(.mobile-open) .logo {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .sidebar:not(.mobile-open) .nav-link {
+    justify-content: center;
+    padding: 12px;
+  }
+
+  /* When mobile menu is open, show full menu with icons and labels */
+  .sidebar.mobile-open {
+    width: 260px;
+  }
+
+  .sidebar.mobile-open .logo-text,
+  .sidebar.mobile-open .subtitle,
+  .sidebar.mobile-open .nav-label {
+    display: inline;
+  }
+
+  .sidebar.mobile-open .nav-link {
+    justify-content: flex-start;
+    padding: 12px 20px;
+  }
+
+  .mobile-overlay {
+    display: block;
+  }
+  
+  .top-header {
+    padding: 10px 16px;
+  }
   
   .header-title h2 {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
   
   .content {
-    padding: 15px;
+    padding: 16px;
+    margin-left: 70px;
+    width: calc(100% - 70px);
+  }
+  
+  .user-name {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar:not(.mobile-open) {
+    width: 60px;
+  }
+  
+  .sidebar.mobile-open {
+    width: calc(100% - 40px);
+    max-width: 240px;
+  }
+  
+  .header-title h2 {
+    font-size: 0.85rem;
+  }
+  
+  .content {
+    margin-left: 60px;
+    width: calc(100% - 60px);
+    padding: 12px;
+  }
+  
+  .user-name {
+    display: none;
   }
 }

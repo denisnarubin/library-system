@@ -9,6 +9,8 @@ const BookForm = () => {
   const isEdit = Boolean(id);
 
   const [authors, setAuthors] = useState([]);
+  const [newAuthorName, setNewAuthorName] = useState('');
+  const [showNewAuthorInput, setShowNewAuthorInput] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     publisher: '',
@@ -58,6 +60,25 @@ const BookForm = () => {
     );
   };
 
+  const handleAddNewAuthor = async () => {
+    if (!newAuthorName.trim()) return;
+    
+    try {
+      setLoading(true);
+      const res = await authorsAPI.create({ name: newAuthorName.trim() });
+      const newAuthor = res.data;
+      setAuthors(prev => [...prev, newAuthor]);
+      setSelectedAuthors(prev => [...prev, newAuthor.id]);
+      setNewAuthorName('');
+      setShowNewAuthorInput(false);
+    } catch (error) {
+      console.error('Error creating author:', error);
+      alert('Ошибка при создании автора');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -65,7 +86,7 @@ const BookForm = () => {
       if (isEdit) {
         await booksAPI.update(id, formData);
       } else {
-        const res = await booksAPI.create(formData);
+        await booksAPI.create(formData);
         // Could add author associations here
       }
       navigate('/books');
@@ -139,20 +160,86 @@ const BookForm = () => {
                 onChange={handleChange}
               />
             </div>
+            
+            {/* Authors Section */}
             <div className="form-group full-width">
-              <label>Авторы</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-                {authors.map(author => (
-                  <label key={author.id} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedAuthors.includes(author.id)}
-                      onChange={() => handleAuthorToggle(author.id)}
-                    />
-                    {author.name}
-                  </label>
-                ))}
+<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <label style={{ margin: 0 }}>Авторы</label>
               </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                {authors.length === 0 ? (
+                  <span style={{ color: '#95a5a6', fontStyle: 'italic' }}>Нет доступных авторов</span>
+                ) : (
+                  authors.map(author => (
+                    <label 
+                      key={author.id} 
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '4px',
+                        padding: '4px 8px',
+                        backgroundColor: selectedAuthors.includes(author.id) ? '#d4edda' : '#f8f9fa',
+                        border: selectedAuthors.includes(author.id) ? '1px solid #27ae60' : '1px solid #e0e0e0',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedAuthors.includes(author.id)}
+                        onChange={() => handleAuthorToggle(author.id)}
+                        style={{ cursor: 'pointer', accentColor: '#27ae60' }}
+                      />
+                      {author.name}
+                    </label>
+                  ))
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '12px' }}>
+                {!showNewAuthorInput && (
+                  <button 
+                    type="button" 
+                    className="btn btn-primary btn-lg"
+                    onClick={() => setShowNewAuthorInput(true)}
+                    style={{ width: 'auto', display: 'inline-block' }}
+                  >
+                    + Новый автор
+                  </button>
+                )}
+              </div>
+              
+              {/* Add New Author Input */}
+              {showNewAuthorInput && (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    value={newAuthorName}
+                    onChange={(e) => setNewAuthorName(e.target.value)}
+                    placeholder="Введите имя нового автора"
+                    style={{ flex: 1, padding: '8px 12px', border: '1px solid #ddd', borderRadius: '4px' }}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddNewAuthor())}
+                  />
+                  <button 
+                    type="button" 
+                    className="btn btn-primary btn-sm"
+                    onClick={handleAddNewAuthor}
+                    disabled={loading || !newAuthorName.trim()}
+                  >
+                    Добавить
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-sm"
+                    onClick={() => {
+                      setShowNewAuthorInput(false);
+                      setNewAuthorName('');
+                    }}
+                  >
+                    Отмена
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -96,7 +96,14 @@ const Dashboard = () => {
       
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon readers">👥</div>
+          <div className="stat-icon readers">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
           <div className="stat-info">
             <span className="stat-value">{stats.totalReaders}</span>
             <span className="stat-label">Всего читателей</span>
@@ -105,7 +112,12 @@ const Dashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon books">📚</div>
+          <div className="stat-icon books">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
           <div className="stat-info">
             <span className="stat-value">{stats.totalBooks}</span>
             <span className="stat-label">Всего книг</span>
@@ -114,7 +126,15 @@ const Dashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon loans">📝</div>
+          <div className="stat-icon loans">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
           <div className="stat-info">
             <span className="stat-value">{stats.activeLoans}</span>
             <span className="stat-label">Книг на руках</span>
@@ -123,7 +143,13 @@ const Dashboard = () => {
         </div>
 
         <div className="stat-card warning">
-          <div className="stat-icon overdue">⚠️</div>
+          <div className="stat-icon overdue">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
           <div className="stat-info">
             <span className="stat-value">{stats.overdueLoans}</span>
             <span className="stat-label">Просрочено</span>
@@ -132,7 +158,12 @@ const Dashboard = () => {
         </div>
 
         <div className="stat-card warning">
-          <div className="stat-icon fines">💰</div>
+          <div className="stat-icon fines">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
           <div className="stat-info">
             <span className="stat-value">{stats.unpaidFines}</span>
             <span className="stat-label">Неоплаченные штрафы</span>
@@ -141,7 +172,14 @@ const Dashboard = () => {
         </div>
 
         <div className="stat-card success">
-          <div className="stat-icon new">🎉</div>
+          <div className="stat-icon new">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="8.5" cy="7" r="4"/>
+              <line x1="20" y1="8" x2="20" y2="14"/>
+              <line x1="23" y1="11" x2="17" y2="11"/>
+            </svg>
+          </div>
           <div className="stat-info">
             <span className="stat-value">{stats.newReadersThisMonth}</span>
             <span className="stat-label">Новых читателей в этом месяце</span>
@@ -197,7 +235,7 @@ const Dashboard = () => {
               <tbody>
                 {debtors.length === 0 ? (
                   <tr>
-                    <td colSpan="3" className="no-data">Нет задолжников 🎉</td>
+                    <td colSpan="3" className="no-data">Нет задолжников</td>
                   </tr>
                 ) : (
                   debtors.map(debtor => (
@@ -224,19 +262,44 @@ const Dashboard = () => {
         <h2 className="section-title">Быстрые действия</h2>
         <div className="actions-grid">
           <Link to="/readers/new" className="action-card">
-            <span className="action-icon">➕</span>
+            <span className="action-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="8.5" cy="7" r="4"/>
+                <line x1="20" y1="8" x2="20" y2="14"/>
+                <line x1="23" y1="11" x2="17" y2="11"/>
+              </svg>
+            </span>
             <span>Новый читатель</span>
           </Link>
           <Link to="/books/new" className="action-card">
-            <span className="action-icon">📖</span>
+            <span className="action-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </span>
             <span>Добавить книгу</span>
           </Link>
           <Link to="/loans/new" className="action-card">
-            <span className="action-icon">📝</span>
+            <span className="action-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </span>
             <span>Выдать книгу</span>
           </Link>
           <Link to="/statistics" className="action-card">
-            <span className="action-icon">📈</span>
+            <span className="action-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </span>
             <span>Статистика</span>
           </Link>
         </div>
