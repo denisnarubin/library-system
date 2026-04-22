@@ -896,6 +896,58 @@ app.get('/api/statistics/reader-current-books', async (req, res) => {
   }
 });
 
+// Запрос 11: Наличие книги на абонементах
+app.get('/api/statistics/book-availability', async (req, res) => {
+  try {
+    const result = await query(
+      "SELECT * FROM book_availability_by_point($1, $2)",
+      [req.query.bookTitle, req.query.pointName || null]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Запрос 12: Читатели у которых на руках книга
+app.get('/api/statistics/readers-with-book', async (req, res) => {
+  try {
+    const result = await query(
+      "SELECT * FROM readers_with_book($1)",
+      [req.query.bookTitle]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Запрос 13: Полная информация о читателе
+app.get('/api/statistics/reader-full-info', async (req, res) => {
+  try {
+    const result = await query(
+      "SELECT * FROM get_reader_full_info($1)",
+      [req.query.lastName]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Запрос 10 (доработанный): Книги и заказы читателя за период
+app.get('/api/statistics/reader-books-requests', async (req, res) => {
+  try {
+    const result = await query(
+      "SELECT * FROM reader_books_and_requests($1, $2, $3)",
+      [req.query.lastName, req.query.period, req.query.daysBack || null]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get all unique faculties
 app.get('/api/faculties', async (req, res) => {
   try {

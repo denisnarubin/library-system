@@ -161,6 +161,12 @@ export const statisticsAPI = {
   getReadersByFaculty: (facultyName) => api.get('/statistics/readers-by-faculty', { params: { facultyName } }),
   getLongTermDebtors: (categoryName) => api.get('/statistics/long-term-debtors', { params: { categoryName } }),
   getReaderCurrentBooks: (readerLastname) => api.get('/statistics/reader-current-books', { params: { readerLastname } }),
+  
+  // Новые запросы
+  getBookAvailability: (bookTitle, pointName) => api.get('/statistics/book-availability', { params: { bookTitle, pointName } }),
+  getReadersWithBook: (bookTitle) => api.get('/statistics/readers-with-book', { params: { bookTitle } }),
+  getReaderFullInfo: (lastName) => api.get('/statistics/reader-full-info', { params: { lastName } }),
+  getReaderBooksAndRequests: (lastName, period, daysBack) => api.get('/statistics/reader-books-requests', { params: { lastName, period, daysBack } }),
 };
 
 export default api;

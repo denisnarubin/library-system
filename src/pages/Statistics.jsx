@@ -27,7 +27,18 @@ const Statistics = () => {
     'lost_count': 'Утеряно',
     'point_name': 'Пункт выдачи',
     'debtors_count': 'Количество должников',
-    'title': 'Название книги'
+    'title': 'Название книги',
+    'point_type': 'Тип пункта',
+    'total_copies': 'Всего экземпляров',
+    'available_copies': 'Доступно сейчас',
+    'reader_category': 'Категория читателя',
+    'days_until_due': 'Дней до возврата',
+    'rank_earliest': 'Порядок возврата',
+    'info_section': 'Раздел информации',
+    'info_details': 'Данные',
+    'info_type': 'Тип записи',
+    'action_date': 'Дата операции',
+    'status_or_due': 'Срок возврата'
   };
 
   const queries = [
@@ -117,6 +128,38 @@ const Statistics = () => {
       placeholder: 'Например: Иванов, Петрова, Сидоров',
       hint: 'Можно вводить только первые буквы фамилии'
     },
+    { 
+      id: 'book_availability', 
+      label: '✅ Наличие книги на абонементах', 
+      needsParam: true, 
+      paramLabel: 'Название книги',
+      placeholder: 'Например: Программирование, Базы данных',
+      hint: 'Показывает количество экземпляров на всех абонементах или конкретном'
+    },
+    { 
+      id: 'readers_with_book', 
+      label: '👥 Читатели у которых на руках книга', 
+      needsParam: true, 
+      paramLabel: 'Название книги',
+      placeholder: 'Например: Война и мир',
+      hint: 'Показывает кто держит книгу и кто раньше всех должен её сдать'
+    },
+    { 
+      id: 'reader_full_info', 
+      label: '📋 Полная информация о читателе', 
+      needsParam: true, 
+      paramLabel: 'Фамилия читателя',
+      placeholder: 'Например: Иванов, Петрова',
+      hint: 'Полный профиль читателя: книги, штрафы, блокировки, история'
+    },
+    { 
+      id: 'reader_books_requests', 
+      label: '📚 Заказы и книги на руках за период', 
+      needsParam: true, 
+      paramLabel: 'Фамилия читателя',
+      placeholder: 'Например: Петров, Сидоров',
+      hint: 'Показывает все заказы и текущие книги читателя за выбранный период'
+    },
   ];
 
   const handleRun = async () => {
@@ -163,6 +206,18 @@ const Statistics = () => {
           break;
         case 'reader_books':
           result = await statisticsAPI.getReaderCurrentBooks(params.value);
+          break;
+        case 'book_availability':
+          result = await statisticsAPI.getBookAvailability(params.value);
+          break;
+        case 'readers_with_book':
+          result = await statisticsAPI.getReadersWithBook(params.value);
+          break;
+        case 'reader_full_info':
+          result = await statisticsAPI.getReaderFullInfo(params.value);
+          break;
+        case 'reader_books_requests':
+          result = await statisticsAPI.getReaderBooksAndRequests(params.value, 'semester', 120);
           break;
         default:
           return;
