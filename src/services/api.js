@@ -77,6 +77,8 @@ export const booksAPI = {
   update: (id, data) => api.put(`/books/${id}`, data),
   delete: (id) => api.delete(`/books/${id}`),
   search: (query) => api.get('/books/search', { params: { query } }),
+  setAuthors: (bookId, authorIds) => api.post(`/books/${bookId}/authors`, { authorIds }),
+  getAuthors: (bookId) => api.get(`/books/${bookId}/authors`),
 };
 
 // Authors API

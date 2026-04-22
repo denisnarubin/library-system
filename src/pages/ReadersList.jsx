@@ -11,6 +11,8 @@ const ReadersList = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [readerToDelete, setReaderToDelete] = useState(null);
+  const [sortField, setSortField] = useState('last_name');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   useEffect(() => {
     fetchData();
@@ -55,6 +57,34 @@ const ReadersList = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedReaders = [...filteredReaders].sort((a, b) => {
+    let valueA = a[sortField];
+    let valueB = b[sortField];
+    
+    if (typeof valueA === 'string') {
+      valueA = valueA.toLowerCase();
+      valueB = valueB.toLowerCase();
+    }
+    
+    if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+    if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const getSortIndicator = (field) => {
+    if (sortField !== field) return '';
+    return sortDirection === 'asc' ? ' ▲' : ' ▼';
+  };
+
   const getCategoryName = (categoryId) => {
     const category = categories.find(c => c.id === categoryId);
     return category?.name || 'Не указано';
@@ -93,21 +123,21 @@ const ReadersList = () => {
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>ФИО</th>
-              <th>Категория</th>
-              <th>Телефон</th>
-              <th>Email</th>
+              <th onClick={() => handleSort('id')} style={{cursor: 'pointer'}}>ID{getSortIndicator('id')}</th>
+              <th onClick={() => handleSort('last_name')} style={{cursor: 'pointer'}}>ФИО{getSortIndicator('last_name')}</th>
+              <th onClick={() => handleSort('category_id')} style={{cursor: 'pointer'}}>Категория{getSortIndicator('category_id')}</th>
+              <th onClick={() => handleSort('phone')} style={{cursor: 'pointer'}}>Телефон{getSortIndicator('phone')}</th>
+              <th onClick={() => handleSort('email')} style={{cursor: 'pointer'}}>Email{getSortIndicator('email')}</th>
               <th>Действия</th>
             </tr>
           </thead>
           <tbody>
-            {filteredReaders.length === 0 ? (
+            {sortedReaders.length === 0 ? (
               <tr>
                 <td colSpan="6" className="no-data">Читатели не найдены</td>
               </tr>
             ) : (
-              filteredReaders.map(reader => (
+              sortedReaders.map(reader => (
                 <tr key={reader.id}>
                   <td>{reader.id}</td>
                   <td>{`${reader.last_name} ${reader.first_name} ${reader.middle_name || ''}`}</td>

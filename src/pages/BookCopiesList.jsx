@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { bookCopiesAPI, booksAPI, publicationPointsAPI } from '../services/api';
+import { useSorting } from '../hooks/useSorting';
 import './Common.css';
 
 const BookCopiesList = () => {
@@ -9,6 +10,7 @@ const BookCopiesList = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const { handleSort, sortData, getSortIndicator } = useSorting('id', 'desc');
 
   useEffect(() => {
     fetchData();
@@ -76,18 +78,18 @@ const BookCopiesList = () => {
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Инвентарный номер</th>
+              <th onClick={() => handleSort('id')} style={{cursor: 'pointer'}}>ID{getSortIndicator('id')}</th>
+              <th onClick={() => handleSort('inventory_number')} style={{cursor: 'pointer'}}>Инвентарный номер{getSortIndicator('inventory_number')}</th>
               <th>Книга</th>
               <th>Пункт выдачи</th>
-              <th>Статус</th>
+              <th onClick={() => handleSort('status')} style={{cursor: 'pointer'}}>Статус{getSortIndicator('status')}</th>
             </tr>
           </thead>
           <tbody>
-            {filteredCopies.length === 0 ? (
+            {sortData(filteredCopies).length === 0 ? (
               <tr><td colSpan="5" className="no-data">Экземпляры не найдены</td></tr>
             ) : (
-              filteredCopies.map(copy => (
+              sortData(filteredCopies).map(copy => (
                 <tr key={copy.id}>
                   <td>{copy.id}</td>
                   <td>{copy.inventory_number}</td>

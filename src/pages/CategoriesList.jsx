@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { readerCategoriesAPI } from '../services/api';
+import { useSorting } from '../hooks/useSorting';
 import './Common.css';
 
 const CategoriesList = () => {
@@ -8,6 +9,7 @@ const CategoriesList = () => {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const { handleSort, sortData, getSortIndicator } = useSorting('name', 'asc');
 
   useEffect(() => { fetchData(); }, []);
 
@@ -46,13 +48,19 @@ const CategoriesList = () => {
       <div className="table-container">
         <table className="data-table">
           <thead>
-            <tr><th>ID</th><th>Название</th><th>Макс. книг</th><th>Срок (дней)</th><th>Действия</th></tr>
+            <tr>
+              <th onClick={() => handleSort('id')} style={{cursor: 'pointer'}}>ID{getSortIndicator('id')}</th>
+              <th onClick={() => handleSort('name')} style={{cursor: 'pointer'}}>Название{getSortIndicator('name')}</th>
+              <th onClick={() => handleSort('max_books_abonement')} style={{cursor: 'pointer'}}>Макс. книг{getSortIndicator('max_books_abonement')}</th>
+              <th onClick={() => handleSort('loan_days')} style={{cursor: 'pointer'}}>Срок (дней){getSortIndicator('loan_days')}</th>
+              <th>Действия</th>
+            </tr>
           </thead>
           <tbody>
-            {categories.length === 0 ? (
+            {sortData(categories).length === 0 ? (
               <tr><td colSpan="5" className="no-data">Категории не найдены</td></tr>
             ) : (
-              categories.map(cat => (
+              sortData(categories).map(cat => (
                 <tr key={cat.id}>
                   <td>{cat.id}</td><td>{cat.name}</td><td>{cat.max_books_abonement || '∞'}</td><td>{cat.loan_days || '-'}</td>
                   <td className="actions">

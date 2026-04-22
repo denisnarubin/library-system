@@ -407,6 +407,53 @@ app.delete('/api/books/:id', async (req, res) => {
   }
 });
 
+// Сохранение авторов для книги
+app.post('/api/books/:id/authors', async (req, res) => {
+  try {
+    const bookId = req.params.id;
+    const { authorIds } = req.body;
+    
+    // Удаляем старые связи
+    await query('DELETE FROM book_authors WHERE book_id = $1', [bookId]);
+    
+    // Добавляем новые связи
+    for (const authorId of authorIds) {
+      await query(
+        'INSERT INTO book_authors (book_id, author_id) VALUES ($1, $2)',
+        [bookId, authorId]
+      );
+    }
+    
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Получение авторов книги
+app.get('/api/books/:id/authors', async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT a.* FROM authors a
+      JOIN book_authors ba ON a.id = ba.author_id
+      WHERE ba.book_id = $1
+    `, [req.params.id]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Получить все связи книг и авторов
+app.get('/api/book-authors', async (req, res) => {
+  try {
+    const result = await query('SELECT * FROM book_authors');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Authors
 app.get('/api/authors', async (req, res) => {
   try {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { bookLoansAPI, readersAPI, booksAPI } from '../services/api';
+import { useSorting } from '../hooks/useSorting';
 import './Common.css';
 
 const LoansList = () => {
@@ -9,6 +10,7 @@ const LoansList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const { handleSort, sortData, getSortIndicator } = useSorting('loan_date', 'desc');
 
   useEffect(() => {
     fetchData();
@@ -81,21 +83,21 @@ const LoansList = () => {
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
+              <th onClick={() => handleSort('id')} style={{cursor: 'pointer'}}>ID{getSortIndicator('id')}</th>
               <th>Читатель</th>
               <th>Книга</th>
-              <th>Дата выдачи</th>
-              <th>Срок возврата</th>
-              <th>Дата возврата</th>
+              <th onClick={() => handleSort('loan_date')} style={{cursor: 'pointer'}}>Дата выдачи{getSortIndicator('loan_date')}</th>
+              <th onClick={() => handleSort('due_date')} style={{cursor: 'pointer'}}>Срок возврата{getSortIndicator('due_date')}</th>
+              <th onClick={() => handleSort('return_date')} style={{cursor: 'pointer'}}>Дата возврата{getSortIndicator('return_date')}</th>
               <th>Статус</th>
               <th>Действия</th>
             </tr>
           </thead>
           <tbody>
-            {filteredLoans.length === 0 ? (
+            {sortData(filteredLoans).length === 0 ? (
               <tr><td colSpan="8" className="no-data">Выдачи не найдены</td></tr>
             ) : (
-              filteredLoans.map(loan => (
+              sortData(filteredLoans).map(loan => (
                 <tr key={loan.id} className={isOverdue(loan) ? 'danger' : ''}>
                   <td>{loan.id}</td>
                   <td>{getReaderName(loan.reader_id)}</td>

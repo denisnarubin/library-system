@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loanBansAPI, readersAPI } from '../services/api';
+import { useSorting } from '../hooks/useSorting';
 import './Common.css';
 
 const LoanBansList = () => {
@@ -8,6 +9,7 @@ const LoanBansList = () => {
   const [bans, setBans] = useState([]);
   const [readers, setReaders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { handleSort, sortData, getSortIndicator } = useSorting('start_date', 'desc');
 
   useEffect(() => { fetchData(); }, []);
 
@@ -58,12 +60,22 @@ const LoanBansList = () => {
       </div>
       <div className="table-container">
         <table className="data-table">
-          <thead><tr><th>ID</th><th>Читатель</th><th>Начало</th><th>Конец</th><th>Причина</th><th>Статус</th><th></th></tr></thead>
+          <thead>
+            <tr>
+              <th onClick={() => handleSort('id')} style={{cursor: 'pointer'}}>ID{getSortIndicator('id')}</th>
+              <th>Читатель</th>
+              <th onClick={() => handleSort('start_date')} style={{cursor: 'pointer'}}>Начало{getSortIndicator('start_date')}</th>
+              <th onClick={() => handleSort('end_date')} style={{cursor: 'pointer'}}>Конец{getSortIndicator('end_date')}</th>
+              <th onClick={() => handleSort('reason')} style={{cursor: 'pointer'}}>Причина{getSortIndicator('reason')}</th>
+              <th>Статус</th>
+              <th></th>
+            </tr>
+          </thead>
           <tbody>
-            {bans.length === 0 ? (
+            {sortData(bans).length === 0 ? (
               <tr><td colSpan="6" className="no-data">Записей не найдено</td></tr>
             ) : (
-              bans.map(ban => (
+              sortData(bans).map(ban => (
                 <tr key={ban.id}>
                   <td>{ban.id}</td><td>{getReaderName(ban.reader_id)}</td>
                   <td>{new Date(ban.start_date).toLocaleDateString('ru-RU')}</td>

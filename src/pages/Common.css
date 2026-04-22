@@ -111,9 +111,57 @@
 }
 
 .search-input:focus,
-.filter-select:focus {
+.filter-select:focus,
+.filter-input:focus {
   outline: none;
   border-color: #3498db;
+}
+
+.filter-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: end;
+  padding: 12px 0;
+  border-top: 1px solid #eaeaea;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.filter-group label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #666;
+  margin: 0;
+}
+
+.filter-input,
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  transition: border-color 0.2s;
+  background-color: white;
+  min-width: 120px;
+}
+
+.filter-input {
+  width: 100px;
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
 }
 
 /* Table */

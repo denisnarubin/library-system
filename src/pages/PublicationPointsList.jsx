@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { publicationPointsAPI } from '../services/api';
+import { useSorting } from '../hooks/useSorting';
 import './Common.css';
 
 const PublicationPointsList = () => {
@@ -8,6 +9,7 @@ const PublicationPointsList = () => {
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [pointToDelete, setPointToDelete] = useState(null);
+  const { handleSort, sortData, getSortIndicator } = useSorting('name', 'asc');
 
   useEffect(() => {
     fetchData();
@@ -50,18 +52,18 @@ const PublicationPointsList = () => {
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Название</th>
-              <th>Тип</th>
-              <th>Адрес</th>
+              <th onClick={() => handleSort('id')} style={{cursor: 'pointer'}}>ID{getSortIndicator('id')}</th>
+              <th onClick={() => handleSort('name')} style={{cursor: 'pointer'}}>Название{getSortIndicator('name')}</th>
+              <th onClick={() => handleSort('point_type')} style={{cursor: 'pointer'}}>Тип{getSortIndicator('point_type')}</th>
+              <th onClick={() => handleSort('address')} style={{cursor: 'pointer'}}>Адрес{getSortIndicator('address')}</th>
               <th>Действия</th>
             </tr>
           </thead>
           <tbody>
-            {points.length === 0 ? (
+            {sortData(points).length === 0 ? (
               <tr><td colSpan="5" className="no-data">Пункты не найдены</td></tr>
             ) : (
-              points.map(point => (
+              sortData(points).map(point => (
                 <tr key={point.id}>
                   <td>{point.id}</td>
                   <td>{point.name}</td>

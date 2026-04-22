@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { finesAPI, readersAPI } from '../services/api';
+import { useSorting } from '../hooks/useSorting';
 import './Common.css';
 
 const FinesList = () => {
@@ -9,6 +10,7 @@ const FinesList = () => {
   const [readers, setReaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const { handleSort, sortData, getSortIndicator } = useSorting('id', 'desc');
 
   useEffect(() => { fetchData(); }, []);
 
@@ -65,12 +67,21 @@ const FinesList = () => {
       </div>
       <div className="table-container">
         <table className="data-table">
-          <thead><tr><th>ID</th><th>Читатель</th><th>Сумма</th><th>Причина</th><th>Статус</th><th>Действия</th></tr></thead>
+          <thead>
+            <tr>
+              <th onClick={() => handleSort('id')} style={{cursor: 'pointer'}}>ID{getSortIndicator('id')}</th>
+              <th>Читатель</th>
+              <th onClick={() => handleSort('amount')} style={{cursor: 'pointer'}}>Сумма{getSortIndicator('amount')}</th>
+              <th onClick={() => handleSort('reason')} style={{cursor: 'pointer'}}>Причина{getSortIndicator('reason')}</th>
+              <th onClick={() => handleSort('paid')} style={{cursor: 'pointer'}}>Статус{getSortIndicator('paid')}</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
           <tbody>
-            {filteredFines.length === 0 ? (
+            {sortData(filteredFines).length === 0 ? (
               <tr><td colSpan="6" className="no-data">Штрафы не найдены</td></tr>
             ) : (
-              filteredFines.map(fine => (
+              sortData(filteredFines).map(fine => (
                 <tr key={fine.id}>
                   <td>{fine.id}</td><td>{getReaderName(fine.reader_id)}</td><td>{fine.amount} ₽</td>
                   <td>{fine.reason === 'overdue' ? 'Просрочка' : fine.reason === 'lost_book' ? 'Утерян' : fine.reason}</td>

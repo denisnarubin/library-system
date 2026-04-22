@@ -42,6 +42,15 @@ const [formData, setFormData] = useState({
       setLoading(true);
       const res = await booksAPI.getById(id);
       setFormData(res.data);
+      
+      // Загружаем уже выбранных авторов для редактирования
+      try {
+        const authorsRes = await booksAPI.getAuthors(id);
+        setSelectedAuthors(authorsRes.data.map(a => a.id));
+      } catch (e) {
+        console.error('Error loading book authors:', e);
+      }
+      
     } catch (error) {
       console.error('Error fetching book:', error);
     } finally {
@@ -132,15 +141,27 @@ const validateField = (name, value) => {
     if (!isFormValid) {
       return;
     }
-    try {
-      setLoading(true);
-      if (isEdit) {
-        await booksAPI.update(id, formData);
-      } else {
-        await booksAPI.create(formData);
-        // Could add author associations here
-      }
-      navigate('/books');
+      try {
+        setLoading(true);
+        let bookId = id;
+        if (isEdit) {
+          await booksAPI.update(id, formData);
+        } else {
+          const result = await booksAPI.create(formData);
+          bookId = result.data.id;
+        }
+
+        // Сохраняем выбранных авторов
+        try {
+          if (selectedAuthors.length > 0) {
+            await booksAPI.setAuthors(bookId, selectedAuthors);
+          }
+        } catch (authorError) {
+          console.error('Error saving authors:', authorError);
+          // Если не сохранились авторы - не блокируем сохранение книги
+        }
+
+        navigate('/books');
     } catch (error) {
       console.error('Error saving book:', error);
       alert('Ошибка при сохранении книги');

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { interlibraryOrdersAPI, readersAPI } from '../services/api';
+import { useSorting } from '../hooks/useSorting';
 import './Common.css';
 
 const InterlibraryOrdersList = () => {
@@ -8,6 +9,7 @@ const InterlibraryOrdersList = () => {
   const [orders, setOrders] = useState([]);
   const [readers, setReaders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { handleSort, sortData, getSortIndicator } = useSorting('order_date', 'desc');
 
   useEffect(() => { fetchData(); }, []);
 
@@ -41,12 +43,22 @@ const InterlibraryOrdersList = () => {
       </div>
       <div className="table-container">
         <table className="data-table">
-          <thead><tr><th>ID</th><th>Читатель</th><th>Книга</th><th>Автор</th><th>Дата заказа</th><th>Получено</th><th>Возврат</th></tr></thead>
+          <thead>
+            <tr>
+              <th onClick={() => handleSort('id')} style={{cursor: 'pointer'}}>ID{getSortIndicator('id')}</th>
+              <th>Читатель</th>
+              <th onClick={() => handleSort('book_title')} style={{cursor: 'pointer'}}>Книга{getSortIndicator('book_title')}</th>
+              <th onClick={() => handleSort('author_name')} style={{cursor: 'pointer'}}>Автор{getSortIndicator('author_name')}</th>
+              <th onClick={() => handleSort('order_date')} style={{cursor: 'pointer'}}>Дата заказа{getSortIndicator('order_date')}</th>
+              <th onClick={() => handleSort('received_date')} style={{cursor: 'pointer'}}>Получено{getSortIndicator('received_date')}</th>
+              <th onClick={() => handleSort('return_date')} style={{cursor: 'pointer'}}>Возврат{getSortIndicator('return_date')}</th>
+            </tr>
+          </thead>
           <tbody>
-            {orders.length === 0 ? (
+            {sortData(orders).length === 0 ? (
               <tr><td colSpan="7" className="no-data">Заказы не найдены</td></tr>
             ) : (
-              orders.map(order => (
+              sortData(orders).map(order => (
                 <tr key={order.id}>
                   <td>{order.id}</td><td>{getReaderName(order.reader_id)}</td><td>{order.book_title}</td>
                   <td>{order.author_name}</td><td>{new Date(order.order_date).toLocaleDateString('ru-RU')}</td>
