@@ -220,12 +220,6 @@ const BooksList = () => {
                   <td>{book.isbn || '-'}</td>
                   <td className="actions">
                     <Link to={`/books/${book.id}`} className="btn btn-sm">Изменить</Link>
-                    <button 
-                      className="btn btn-sm btn-danger"
-                      onClick={() => { setBookToDelete(book.id); setShowDeleteModal(true); }}
-                    >
-                      Удалить
-                    </button>
                   </td>
                 </tr>
               ))

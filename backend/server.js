@@ -400,8 +400,26 @@ app.put('/api/books/:id', async (req, res) => {
 
 app.delete('/api/books/:id', async (req, res) => {
   try {
-    await query('DELETE FROM books WHERE id = $1', [req.params.id]);
-    res.json({ success: true });
+    const bookId = req.params.id;
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // Удаляем все связи в правильном порядке внутри транзакции
+      await client.query('DELETE FROM book_authors WHERE book_id = $1', [bookId]);
+      await client.query('DELETE FROM book_copies WHERE book_id = $1', [bookId]);
+      await client.query('DELETE FROM books WHERE id = $1', [bookId]);
+      
+      await client.query('COMMIT');
+      res.json({ success: true });
+    } catch (txErr) {
+      await client.query('ROLLBACK');
+      throw txErr;
+    } finally {
+      client.release();
+    }
+    
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

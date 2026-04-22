@@ -6,6 +6,7 @@ import ReaderForm from './pages/ReaderForm';
 import BooksList from './pages/BooksList';
 import BookForm from './pages/BookForm';
 import BookCopiesList from './pages/BookCopiesList';
+import BookCopyForm from './pages/BookCopyForm';
 import LoansList from './pages/LoansList';
 import LoanForm from './pages/LoanForm';
 import PublicationPointsList from './pages/PublicationPointsList';
@@ -45,6 +46,8 @@ function App() {
           
           {/* Book Copies */}
           <Route path="book-copies" element={<BookCopiesList />} />
+          <Route path="book-copies/new" element={<BookCopyForm />} />
+          <Route path="book-copies/:id" element={<BookCopyForm />} />
           
           {/* Loans */}
           <Route path="loans" element={<LoansList />} />

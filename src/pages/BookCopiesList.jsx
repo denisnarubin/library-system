@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { bookCopiesAPI, booksAPI, publicationPointsAPI } from '../services/api';
 import { useSorting } from '../hooks/useSorting';
 import './Common.css';
@@ -52,6 +53,7 @@ const BookCopiesList = () => {
     <div className="list-page">
       <div className="page-header">
         <h1>Экземпляры книг</h1>
+        <Link to="/book-copies/new" className="btn btn-primary">+ Добавить экземпляр</Link>
       </div>
 
       <div className="filters">
