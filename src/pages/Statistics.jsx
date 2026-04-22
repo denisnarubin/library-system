@@ -130,7 +130,7 @@ const Statistics = () => {
     },
     { 
       id: 'book_availability', 
-      label: '✅ Наличие книги на абонементах', 
+      label: 'Наличие книги на абонементах', 
       needsParam: true, 
       paramLabel: 'Название книги',
       placeholder: 'Например: Программирование, Базы данных',
@@ -138,7 +138,7 @@ const Statistics = () => {
     },
     { 
       id: 'readers_with_book', 
-      label: '👥 Читатели у которых на руках книга', 
+      label: 'Читатели у которых на руках книга', 
       needsParam: true, 
       paramLabel: 'Название книги',
       placeholder: 'Например: Война и мир',
@@ -146,7 +146,7 @@ const Statistics = () => {
     },
     { 
       id: 'reader_full_info', 
-      label: '📋 Полная информация о читателе', 
+      label: 'Полная информация о читателе', 
       needsParam: true, 
       paramLabel: 'Фамилия читателя',
       placeholder: 'Например: Иванов, Петрова',
@@ -154,7 +154,7 @@ const Statistics = () => {
     },
     { 
       id: 'reader_books_requests', 
-      label: '📚 Заказы и книги на руках за период', 
+      label: 'Заказы и книги на руках за период', 
       needsParam: true, 
       paramLabel: 'Фамилия читателя',
       placeholder: 'Например: Петров, Сидоров',
